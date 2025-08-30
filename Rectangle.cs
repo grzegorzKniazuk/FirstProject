@@ -2,11 +2,11 @@
 
 namespace FirstProject;
 
-public class Square: IShape {
+public class Rectangle: Shape, IShape {
     
     private double SideLength { get; set; }
 
-    public Square(double sideLength) {
+    public Rectangle(double sideLength) {
         SideLength = sideLength;
     }
     
@@ -16,5 +16,9 @@ public class Square: IShape {
 
     public double CalculatePerimeter() {
         return 4 * SideLength;
+    }
+    
+    public override void Draw() {
+        Console.WriteLine("Drawing a shape at ({0}, {1})", X, Y);
     }
 }

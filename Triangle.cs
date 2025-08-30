@@ -2,20 +2,20 @@
 
 namespace FirstProject;
 
-public class Circle : Shape, IShape {
+public class Triangle: Shape, IShape {
+    
+    private double SideLength { get; set; }
 
-    private double Radius { get; set; }
-
-    public Circle(double radius) {
-        Radius = radius;
+    public Triangle(double sideLength) {
+        SideLength = sideLength;
     }
 
     public double CalculateArea() {
-        return Math.PI * Radius * Radius;
+        return (Math.Sqrt(3) / 4) * SideLength * SideLength;
     }
 
     public double CalculatePerimeter() {
-        return 2 * Math.PI * Radius;
+        return 3 * SideLength;
     }
 
     public override void Draw() {
