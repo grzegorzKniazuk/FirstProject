@@ -4,8 +4,8 @@ public class Person {
 
     public static int Count = 0;
     
-    public string FirstName;
-    public string LastName;
+    public readonly string FirstName;
+    public readonly string LastName;
     private DateTime _dateOfBirth;
     
     /*
@@ -62,4 +62,33 @@ public class Person {
     }
 
     public DateTime GetDateOfBirth() => _dateOfBirth;
+
+    // override Equals method
+    public override bool Equals(object? obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (GetType() != obj.GetType()) {
+            return false;
+        }
+        
+        Person other = (Person)obj;
+        
+        return FirstName == other.FirstName && LastName == other.LastName && _dateOfBirth == other._dateOfBirth;
+    }
+
+    // override operator
+    public static bool operator ==(Person a, Person b) {
+        return Equals(a, b);
+    }
+
+    public static bool operator !=(Person a, Person b) {
+        return !(a == b);
+    }
+    
+    // override GetHashCode method
+    public override int GetHashCode() {
+        return HashCode.Combine(FirstName, LastName);
+    }
 }

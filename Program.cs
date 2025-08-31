@@ -295,6 +295,42 @@ namespace FirstProject {
             foreach (var number in GetYieldedData()) {
                 Console.WriteLine(number);
             }
+            
+            // ref and out
+            int originalValue = 10;
+            Console.WriteLine("Original value before method call: " + originalValue);
+            Double(ref originalValue);
+            Console.WriteLine("Original value after method call: " + originalValue);
+
+            int value = 5;
+            int factor = 2;
+            int remainder;
+            
+            if (IsDivisible(value, factor, out remainder)) {
+                Console.WriteLine($"{value} is divisible by {factor}.");
+            }
+            else {
+                Console.WriteLine($"{value} is not divisible by {factor}. Remainder: {remainder}");
+            }
+            
+            Console.WriteLine("Type in a number:");
+            string? input = Console.ReadLine();
+            
+            if (IsBelowZero(input, out int parsedNumber)) {
+                if (parsedNumber < 0) {
+                    Console.WriteLine("The number is below zero.");
+                }
+            }
+            
+            // reference type equality
+            Person person1 = new Person("Alice", "Johnson");
+            Person person2 = new Person("Alice", "Johnson");
+            Person person3 = person1;
+            
+            Console.WriteLine("person1 == person2: " + (person1 == person2)); // True, different reference but overloaded ==
+            Console.WriteLine("person1 == person3: " + (person1 == person3)); // True, same reference
+            Console.WriteLine("person1.Equals(person2): " + person1.Equals(person2)); // False, unless Equals is overridden
+            Console.WriteLine("person1.Equals(person3): " + person1.Equals(person3)); // True
         }
         
         private static IEnumerable<int> GetYieldedData() {
@@ -310,6 +346,25 @@ namespace FirstProject {
                     
                 }
             }
+        }
+        
+        private static void Double(ref int value) {
+            value *= 2;
+            Console.WriteLine("Doubled value (inside method): " + value);
+        }
+        
+        private static bool IsDivisible(int value, int factor, out int remainder) {
+            remainder = value % factor;
+
+            return remainder == 0;
+        }
+        
+        private static bool IsBelowZero(string input, out int result) {
+            if (int.TryParse(input, out result)) {
+                return result < 0;
+            }
+            
+            return false;
         }
     }
     #endregion
