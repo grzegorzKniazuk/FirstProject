@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using FirstProject.Enums;
 
 namespace FirstProject {
-    
     #region ProgramClassRegion
+
     class Program {
         /// <summary>
         ///    The main entry point for the application.
@@ -217,36 +218,36 @@ namespace FirstProject {
             Console.WriteLine("Number of people created: " + Person.Count);
 
             // inheritance
-            ExelFile exelFile = new ExelFile {
+            ExelFileObj exelFileObj = new ExelFileObj {
                 FileName = "FinancialReport.xlsx",
                 Size = 2048,
                 CreatedAt = DateTime.Now.AddDays(-10)
             };
-            exelFile.GenerateReport();
+            exelFileObj.GenerateReport();
 
-            WordFile wordFile = new WordFile {
+            WordFileObj wordFileObj = new WordFileObj {
                 FileName = "ProjectProposal.docx",
                 Size = 1024,
                 CreatedAt = DateTime.Now.AddDays(-5)
             };
-            wordFile.Print();
+            wordFileObj.Print();
 
-            PowerPointFile powerPointFile = new PowerPointFile {
+            PowerPointFileObj powerPointFileObj = new PowerPointFileObj {
                 FileName = "SalesPresentation.pptx",
                 Size = 3072,
                 CreatedAt = DateTime.Now.AddDays(-2)
             };
-            powerPointFile.Present();
+            powerPointFileObj.Present();
 
             // lists
             List<Person> people = new List<Person> { bill, steve };
             people.Add(new Person("Elon", "Musk"));
-            
+
             Console.WriteLine("People in the list:");
             foreach (var person in people) {
                 person.SayHello();
             }
-            
+
             // linq
             List<Person> employees = new List<Person>() {
                 new Person(new DateTime(1990, 2, 2), "Bill", "Wick"),
@@ -257,9 +258,9 @@ namespace FirstProject {
                 new Person(new DateTime(2005, 2, 2), "Bob", "Smith"),
                 new Person(new DateTime(2003, 2, 2), "Ed", "Smith"),
             };
-            
+
             List<Person> youngEmployees = employees.Where(e => e.GetAge() < 30).OrderBy(e => e.LastName).ThenBy(e => e.FirstName).ToList();
-            
+
             Console.WriteLine("Young employees (under 30):");
             foreach (var emp in youngEmployees) {
                 emp.SayHello();
@@ -276,7 +277,7 @@ namespace FirstProject {
             foreach (var kvp in countryCapitals) {
                 Console.WriteLine($"The capital of {kvp.Key} is {kvp.Value}");
             }
-            
+
             countryCapitals.TryAdd("Germany", "Berlin"); // Add new entry
             Console.WriteLine("The capital of Germany is " + countryCapitals["Germany"]);
 
@@ -286,16 +287,16 @@ namespace FirstProject {
             else {
                 Console.WriteLine("Spain is not in the dictionary.");
             }
-            
+
             countryCapitals.Remove("France");
             Console.WriteLine("Removed France from the dictionary.");
-            
+
             // yield return
             Console.WriteLine("Yielded data:");
             foreach (var number in GetYieldedData()) {
                 Console.WriteLine(number);
             }
-            
+
             // ref and out
             int originalValue = 10;
             Console.WriteLine("Original value before method call: " + originalValue);
@@ -305,34 +306,56 @@ namespace FirstProject {
             int value = 5;
             int factor = 2;
             int remainder;
-            
+
             if (IsDivisible(value, factor, out remainder)) {
                 Console.WriteLine($"{value} is divisible by {factor}.");
             }
             else {
                 Console.WriteLine($"{value} is not divisible by {factor}. Remainder: {remainder}");
             }
-            
+
             Console.WriteLine("Type in a number:");
             string? input = Console.ReadLine();
-            
+
             if (IsBelowZero(input, out int parsedNumber)) {
                 if (parsedNumber < 0) {
                     Console.WriteLine("The number is below zero.");
                 }
             }
-            
+
             // reference type equality
             Person person1 = new Person("Alice", "Johnson");
             Person person2 = new Person("Alice", "Johnson");
             Person person3 = person1;
-            
+
             Console.WriteLine("person1 == person2: " + (person1 == person2)); // True, different reference but overloaded ==
             Console.WriteLine("person1 == person3: " + (person1 == person3)); // True, same reference
             Console.WriteLine("person1.Equals(person2): " + person1.Equals(person2)); // False, unless Equals is overridden
             Console.WriteLine("person1.Equals(person3): " + person1.Equals(person3)); // True
+
+            // files and directories
+            // read from file
+            var document1 = File.ReadAllText(@"C:\Projekty - dotnet\FirstProject\sample.txt");
+            var document2 = File.ReadAllLines(@"C:\Projekty - dotnet\FirstProject\sample.txt");
+
+            Console.WriteLine("Content of sample.txt:");
+            Console.WriteLine(document1);
+
+            Console.WriteLine("Content of sample.txt:");
+            foreach (var line in document2) {
+                Console.WriteLine(line);
+            }
+
+            // write to file
+            var template = File.ReadAllText(@"C:\Projekty - dotnet\FirstProject\template.txt");
+            var output = template.Replace("{name}", "John Doe").Replace("{orderNumber}", "12345").Replace("{dateTime}", DateTime.Now.ToString());
+
+            File.WriteAllText(@"C:\Projekty - dotnet\FirstProject\output.txt", output);
+            
+            // json serialization
+            
         }
-        
+
         private static IEnumerable<int> GetYieldedData() {
             for (int i = 0; i < 10; i++) {
                 yield return i;
@@ -343,29 +366,36 @@ namespace FirstProject {
 
                 if (i % 8 == 0) {
                     yield break;
-                    
                 }
             }
         }
-        
+
         private static void Double(ref int value) {
             value *= 2;
             Console.WriteLine("Doubled value (inside method): " + value);
         }
-        
+
         private static bool IsDivisible(int value, int factor, out int remainder) {
             remainder = value % factor;
 
             return remainder == 0;
         }
-        
+
         private static bool IsBelowZero(string input, out int result) {
             if (int.TryParse(input, out result)) {
                 return result < 0;
             }
-            
+
             return false;
         }
+
+        // file system
+        private static void ScanAndAppend() {
+            Directory.GetFiles(@"C:\Projekty - dotnet\FirstProject", "*.txt").ToList().ForEach(filename => {
+                File.AppendAllText(@"C:\Projekty - dotnet\FirstProject\all.txt", "All rights reserved.");
+            });
+        }
     }
+
     #endregion
 }

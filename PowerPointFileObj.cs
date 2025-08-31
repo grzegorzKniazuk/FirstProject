@@ -1,6 +1,6 @@
 ﻿namespace FirstProject;
 
-public class PowerPointFile: File {
+public class PowerPointFileObj: FileObj {
     
     public void Present() {
         Console.WriteLine($"Presenting PowerPoint file: {FileName}");

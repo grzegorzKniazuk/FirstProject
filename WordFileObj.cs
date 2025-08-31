@@ -1,6 +1,6 @@
 ﻿namespace FirstProject;
 
-public class WordFile : File {
+public class WordFileObj : FileObj {
     
     public void Print() {
         Console.WriteLine($"Printing Word file: {FileName}");
