@@ -1,7 +1,7 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using FirstProject.Enums;
+using Newtonsoft.Json;
 
 namespace FirstProject {
     #region ProgramClassRegion
@@ -351,9 +351,40 @@ namespace FirstProject {
             var output = template.Replace("{name}", "John Doe").Replace("{orderNumber}", "12345").Replace("{dateTime}", DateTime.Now.ToString());
 
             File.WriteAllText(@"C:\Projekty - dotnet\FirstProject\output.txt", output);
-            
+
             // json serialization
+            var player = new Player {
+                Name = "Mario",
+                Level = 1,
+                HealthPoints = 100,
+                Statistics = [
+                    new Statistic {
+                        Name = "Strength",
+                        Points = 10
+                    },
+
+                    new Statistic {
+                        Name = "Intelligence",
+                        Points = 10
+                    }
+                ]
+            };
+
+            var serializedPlayer = JsonConvert.SerializeObject(player);
+            File.WriteAllText(@"C:\Projekty - dotnet\FirstProject\player.json", serializedPlayer);
             
+            // json deserialization
+            var jsonFromFile = File.ReadAllText(@"C:\Projekty - dotnet\FirstProject\player.json");
+            var deserializedPlayer = JsonConvert.DeserializeObject<Player>(jsonFromFile);
+            Console.WriteLine("Deserialized player name: " + deserializedPlayer?.Name);
+            
+            // using statement
+            // automatically calls Dispose() method on the object
+            // typically used for file and network operations
+            using var reader = new StreamReader(@"C:\Projekty - dotnet\FirstProject\sample.txt");
+            var content = reader.ReadToEnd();
+            Console.WriteLine("Content read using StreamReader:");
+            Console.WriteLine(content);
         }
 
         private static IEnumerable<int> GetYieldedData() {
@@ -391,9 +422,7 @@ namespace FirstProject {
 
         // file system
         private static void ScanAndAppend() {
-            Directory.GetFiles(@"C:\Projekty - dotnet\FirstProject", "*.txt").ToList().ForEach(filename => {
-                File.AppendAllText(@"C:\Projekty - dotnet\FirstProject\all.txt", "All rights reserved.");
-            });
+            Directory.GetFiles(@"C:\Projekty - dotnet\FirstProject", "*.txt").ToList().ForEach(filename => { File.AppendAllText(@"C:\Projekty - dotnet\FirstProject\all.txt", "All rights reserved."); });
         }
     }
 
