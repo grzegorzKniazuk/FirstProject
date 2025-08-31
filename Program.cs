@@ -3,8 +3,8 @@ using System.Text.RegularExpressions;
 using FirstProject.Enums;
 
 namespace FirstProject {
+    
     #region ProgramClassRegion
-
     class Program {
         /// <summary>
         ///    The main entry point for the application.
@@ -246,8 +246,71 @@ namespace FirstProject {
             foreach (var person in people) {
                 person.SayHello();
             }
+            
+            // linq
+            List<Person> employees = new List<Person>() {
+                new Person(new DateTime(1990, 2, 2), "Bill", "Wick"),
+                new Person(new DateTime(1995, 6, 3), "John", "Wick"),
+                new Person(new DateTime(1996, 4, 3), "Bob", "Wick"),
+                new Person(new DateTime(2001, 2, 2), "Bill", "Smith"),
+                new Person(new DateTime(2000, 2, 2), "John", "Smith"),
+                new Person(new DateTime(2005, 2, 2), "Bob", "Smith"),
+                new Person(new DateTime(2003, 2, 2), "Ed", "Smith"),
+            };
+            
+            List<Person> youngEmployees = employees.Where(e => e.GetAge() < 30).OrderBy(e => e.LastName).ThenBy(e => e.FirstName).ToList();
+            
+            Console.WriteLine("Young employees (under 30):");
+            foreach (var emp in youngEmployees) {
+                emp.SayHello();
+            }
+
+            // dictionaries
+            Dictionary<string, string> countryCapitals = new Dictionary<string, string> {
+                { "USA", "Washington, D.C." },
+                { "UK", "London" },
+                { "France", "Paris" }
+            };
+
+            Console.WriteLine("Country capitals:");
+            foreach (var kvp in countryCapitals) {
+                Console.WriteLine($"The capital of {kvp.Key} is {kvp.Value}");
+            }
+            
+            countryCapitals.TryAdd("Germany", "Berlin"); // Add new entry
+            Console.WriteLine("The capital of Germany is " + countryCapitals["Germany"]);
+
+            if (countryCapitals.TryGetValue("Spain", out string capitalOfSpain)) {
+                Console.WriteLine("The capital of Spain is " + capitalOfSpain);
+            }
+            else {
+                Console.WriteLine("Spain is not in the dictionary.");
+            }
+            
+            countryCapitals.Remove("France");
+            Console.WriteLine("Removed France from the dictionary.");
+            
+            // yield return
+            Console.WriteLine("Yielded data:");
+            foreach (var number in GetYieldedData()) {
+                Console.WriteLine(number);
+            }
+        }
+        
+        private static IEnumerable<int> GetYieldedData() {
+            for (int i = 0; i < 10; i++) {
+                yield return i;
+
+                if (i % 2 == 0) {
+                    yield return i * 10;
+                }
+
+                if (i % 8 == 0) {
+                    yield break;
+                    
+                }
+            }
         }
     }
-
     #endregion
 }

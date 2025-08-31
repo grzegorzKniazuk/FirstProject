@@ -50,5 +50,16 @@ public class Person {
         }
     }
 
+    public int GetAge() {
+        var today = DateTime.Today;
+        var age = today.Year - _dateOfBirth.Year;
+
+        if (_dateOfBirth.Date > today.AddYears(-age)) {
+            age--;
+        }
+        
+        return age;
+    }
+
     public DateTime GetDateOfBirth() => _dateOfBirth;
 }
