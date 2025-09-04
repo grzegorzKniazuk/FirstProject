@@ -1,4 +1,6 @@
-﻿namespace FirstProject;
+﻿using System.Text;
+
+namespace FirstProject;
 
 public class StringManipulation {
     public static void Substring(string userInput) {
@@ -46,5 +48,39 @@ public class StringManipulation {
         } else {
             Console.WriteLine("The input does not end with .txt");
         }
+    }
+    
+    public static string CamelCaseToKebabCase(string input) {
+        if (string.IsNullOrEmpty(input)) {
+            return input;
+        }
+
+        var result = new StringBuilder();
+        
+        foreach (char c in input) {
+            if (char.IsUpper(c) && result.Length > 0) {
+                result.Append('-');
+            }
+            result.Append(char.ToLower(c));
+        }
+        return result.ToString();
+    }
+
+    public static string KebabCaseToCamelCase(string input) {
+        if (string.IsNullOrEmpty(input)) {
+            return input;
+        }
+        
+        var result = new StringBuilder();
+
+        foreach (char c in input) {
+            if (c == '-') {
+                result.Append(char.ToUpper(c));
+            } else {
+                result.Append(c);
+            }
+        }
+        
+        return result.ToString();
     }
 }
