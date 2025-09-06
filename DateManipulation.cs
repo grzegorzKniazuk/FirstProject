@@ -82,4 +82,8 @@ public class DateManipulation {
         bool isLeapYear = DateTime.IsLeapYear(now.Year);
         Console.WriteLine(isLeapYear);
     }
+    
+    public static bool IsDateBetween(DateTime date, DateTime from, DateTime to) {
+        return date >= from && date <= to;
+    }
 }
