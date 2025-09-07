@@ -1,0 +1,26 @@
+﻿[
+  {
+    "Id": 1,
+    "PersonId": 1,
+    "Street": "Kwiatowa 15",
+    "City": "Warszawa"
+  },
+  {
+    "Id": 2,
+    "PersonId": 2,
+    "Street": "Leśna 7",
+    "City": "Kraków"
+  },
+  {
+    "Id": 3,
+    "PersonId": 4,
+    "Street": "Polna 3",
+    "City": "Gdańsk"
+  },
+  {
+    "Id": 4,
+    "PersonId": 4,
+    "Street": "Słoneczna 10",
+    "City": "Wrocław"
+  }
+]

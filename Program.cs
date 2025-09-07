@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
+using CsvHelper;
 using FirstProject.Enums;
 using Newtonsoft.Json;
 
@@ -385,6 +387,18 @@ namespace FirstProject {
             var content = reader.ReadToEnd();
             Console.WriteLine("Content read using StreamReader:");
             Console.WriteLine(content);
+            
+            // linq
+            string csvPath = @"C:\Projekty - dotnet\FirstProject\googleplaystore.csv";
+            var googleApps = LoadGoogleAps(csvPath);
+
+            // Display(googleApps);
+            // GetData(googleApps);
+            // DisplayData(googleApps);
+            // OrderData(googleApps);
+            // DataSetOperations(googleApps);
+            // VerifyData(googleApps);
+            // GroupData(googleApps);
         }
 
         private static IEnumerable<int> GetYieldedData() {
@@ -423,6 +437,162 @@ namespace FirstProject {
         // file system
         private static void ScanAndAppend() {
             Directory.GetFiles(@"C:\Projekty - dotnet\FirstProject", "*.txt").ToList().ForEach(filename => { File.AppendAllText(@"C:\Projekty - dotnet\FirstProject\all.txt", "All rights reserved."); });
+        }
+        
+        private static void GetData(IEnumerable<GoogleApp> googleApps) {
+            var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
+            // first - zwraca pierwszy element lub domyślną wartość, jeśli kolekcja jest pusta
+            var firstHighRatedBeautyApp = highRatedBeautyApps.FirstOrDefault(app => app.Reviews < 300);
+
+            // last - zwraca ostatni element lub domyślną wartość, jeśli kolekcja jest pusta
+            var lastHighRatedBeautyApp = highRatedBeautyApps.LastOrDefault(app => app.Reviews < 300);
+
+            // single - zwraca jeden element lub domyślną wartość, jeśli nie ma dokładnie jednego elementu
+            var singleHighRatedBeautyApp = highRatedBeautyApps.SingleOrDefault(app => app.Reviews < 300);
+
+            Display(firstHighRatedBeautyApp);
+            Display(lastHighRatedBeautyApp);
+            Display(singleHighRatedBeautyApp);
+        }
+
+        private static void DisplayData(IEnumerable<GoogleApp> googleApps) {
+            var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
+            // Projekcja - wybieranie określonych właściwości z obiektów
+            // Wybieranie jednej właściwości
+            var highRatedBeautyAppsNames = highRatedBeautyApps.Select(app => app.Name);
+
+            // Projekcja do innego typu
+            // DTO - Data Transfer Object
+            var dtos = highRatedBeautyApps.Select(app => new GoogleAppDto { Name = app.Name, Reviews = app.Reviews });
+            // Anonimowe typy
+            var anonymousDtos = highRatedBeautyApps.Select(app => new { app.Name, app.Reviews });
+
+            // SelectMany - spłaszcza kolekcję kolekcji do jednej kolekcji
+            var genres = highRatedBeautyApps.SelectMany(app => app.Genres);
+            
+            Console.WriteLine(string.Join(", ", highRatedBeautyAppsNames));
+        }
+        
+        private static void DivideData(IEnumerable<GoogleApp> googleApps) {
+            var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
+            
+            var first5HighRatedBeautyApps = highRatedBeautyApps.Take(5);
+            var skip5HighRatedBeautyApps = highRatedBeautyApps.Skip(5);
+            // TakeWhile - pobiera elementy z kolekcji dopóki warunek jest spełniony
+            var firstHighRatedBeautyApp = highRatedBeautyApps.TakeWhile(app => app.Reviews > 1000);
+        }
+
+        private static void OrderData(IEnumerable<GoogleApp> googleApps) {
+            var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
+            // OrderBy - sortuje rosnąco
+            // OrderByDescending - sortuje malejąco
+            // ThenBy - sortuje rosnąco po drugim kryterium
+            // ThenByDescending - sortuje malejąco po drugim kryterium
+            var orderedByName = highRatedBeautyApps.OrderBy(app => app.Name);
+            var orderedByReviewsDesc = highRatedBeautyApps.OrderByDescending(app => app.Reviews);
+            var orderedByRatingThenByReviews = highRatedBeautyApps.OrderByDescending(app => app.Rating).ThenByDescending(app => app.Reviews);
+            
+            Display(orderedByName);
+            Display(orderedByReviewsDesc);
+            Display(orderedByRatingThenByReviews);
+        }
+        
+        private static void DataSetOperations(IEnumerable<GoogleApp> googleApps) {
+            var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
+            var highRatedGamesApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.GAME);
+            
+            // Distinct - usuwa duplikaty
+            var distinctCategories = googleApps.Select(app => app.Category).Distinct();
+            // Union - łączy dwie kolekcje i usuwa duplikaty
+            var union = highRatedBeautyApps.Union(highRatedGamesApps);
+            // Intersect - zwraca wspólne elementy dwóch kolekcji
+            var intersect = highRatedBeautyApps.Intersect(highRatedGamesApps);
+            // Except - zwraca elementy z pierwszej kolekcji, które nie występują w drugiej kolekcji
+            var except = highRatedBeautyApps.Except(highRatedGamesApps);
+
+            foreach (var distinctCategory in distinctCategories) {
+               Console.WriteLine("Category: " + distinctCategory);
+            }
+            Display(union);
+            Display(intersect);
+            Display(except);
+        }
+        
+        private static void VerifyData(IEnumerable<GoogleApp> googleApps) {
+            var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
+            // All - sprawdza, czy wszystkie elementy spełniają warunek
+            var allHighRatedBeautyAppsHaveMoreThan100Reviews = highRatedBeautyApps.All(app => app.Reviews > 100);
+            // Any - sprawdza, czy przynajmniej jeden element spełnia warunek
+            var anyHighRatedBeautyAppHasMoreThan10000Reviews = highRatedBeautyApps.Any(app => app.Reviews > 10000);
+            // Contains - sprawdza, czy kolekcja zawiera dany element
+            var containsApp = highRatedBeautyApps.Contains(new GoogleApp { Name = "My App" }); // Wymaga nadpisania Equals i GetHashCode w klasie GoogleApp
+
+            Console.WriteLine("All high rated beauty apps have more than 100 reviews: " + allHighRatedBeautyAppsHaveMoreThan100Reviews);
+            Console.WriteLine("Any high rated beauty app has more than 10000 reviews: " + anyHighRatedBeautyAppHasMoreThan10000Reviews);
+            Console.WriteLine("Contains app: " + containsApp);
+        }
+
+        private static void GroupData(IEnumerable<GoogleApp> googleApps) {
+            // GroupBy - grupuje elementy według klucza
+            var groupedByCategory = googleApps.GroupBy(app => app.Category);
+            // Grupowanie według wielu kluczy
+            var groupedByCategoryAndType = googleApps.GroupBy(app => new { app.Category, app.Type });
+            
+            // Pobieranie konkretnej grupy
+            var artAndDesignApps = groupedByCategory.First(group => group.Key == Category.ART_AND_DESIGN).ToList();
+            
+            foreach (var group in groupedByCategory) {
+                Console.WriteLine("Category: " + group.Key);
+                
+                // czy wszystkie aplikacje w danej kategorii mają ocenę powyżej 4.0
+                var allHighRated = group.All(app => app.Rating > 4.0);
+                Console.WriteLine("\tAll high rated: " + allHighRated);
+                
+                // srednia liczba recenzji w danej kategorii
+                var averageReviews = group.Average(app => app.Reviews);
+                Console.WriteLine("\tAverage reviews: " + averageReviews);
+                
+                // liczba aplikacji w danej kategorii
+                var count = group.Count();
+                Console.WriteLine("\tCount: " + count);
+                
+                // maksymalna liczba recenzji w danej kategorii
+                var maxReviews = group.Max(app => app.Reviews);
+                Console.WriteLine("\tMax reviews: " + maxReviews);
+                
+                // minimalna liczba recenzji w danej kategorii
+                var minReviews = group.Min(app => app.Reviews);
+                Console.WriteLine("\tMin reviews: " + minReviews);
+                
+                // suma recenzji w danej kategorii
+                var sumReviews = group.Sum(app => app.Reviews);
+                Console.WriteLine("\tSum reviews: " + sumReviews);
+                
+                // wyświetlanie aplikacji w danej kategorii
+                foreach (var app in group) {
+                    Console.WriteLine("\t" + app);
+                }
+            }
+        }
+        
+        static void Display(IEnumerable<GoogleApp> googleApps) {
+            foreach (var googleApp in googleApps) {
+                Console.WriteLine(googleApp);
+            }
+        }
+
+        static void Display(GoogleApp googleApp) {
+            Console.WriteLine(googleApp);
+        }
+
+        static List<GoogleApp> LoadGoogleAps(string csvPath) {
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+            csv.Context.RegisterClassMap<GoogleAppMap>();
+            var records = csv.GetRecords<GoogleApp>().ToList();
+
+            return records;
         }
     }
 
