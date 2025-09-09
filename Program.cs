@@ -427,12 +427,33 @@ namespace FirstProject {
             // delegate
             Display displayMethod = Console.WriteLine;
             DisplayNumbers(numbers, displayMethod);
+
+            // predicate delegate
+            var count = Count(numbers, (v) => v > 15);
+            Console.WriteLine("Count of numbers greater than 15: " + count);
+            
+            var strings = new string[] { "apple", "banana", "cherry", "date" };
+            var countOfStringsWithA = Count(strings, s => s.Contains('a'));
+            Console.WriteLine("Count of strings containing 'a': " + countOfStringsWithA);
         }
 
         public static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {
             foreach (var number in numbers) {
                 displayMethod(number.ToString());
             }
+        }
+        
+        public delegate bool GenericPredicate<T>(T item);
+        public static int Count<T>(IEnumerable<T> items, GenericPredicate<T> predicate) {
+            int count = 0;
+
+            foreach (var item in items) {
+                if (predicate(item)) {
+                    count++;
+                }
+            }
+            
+            return count;
         }
 
         private static IEnumerable<int> GetYieldedData() {
