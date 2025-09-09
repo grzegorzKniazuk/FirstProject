@@ -443,8 +443,11 @@ namespace FirstProject {
             }
         }
         
+        // custom generic predicate delegate
         public delegate bool GenericPredicate<T>(T item);
-        public static int Count<T>(IEnumerable<T> items, GenericPredicate<T> predicate) {
+        
+        // use Predicate<T> from System namespace
+        public static int Count<T>(IEnumerable<T> items, Predicate<T> predicate) {
             int count = 0;
 
             foreach (var item in items) {
