@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 namespace FirstProject {
     #region ProgramClassRegion
 
+    public delegate void Display(string value);
+    
     class Program {
         /// <summary>
         ///    The main entry point for the application.
@@ -399,6 +401,38 @@ namespace FirstProject {
             // DataSetOperations(googleApps);
             // VerifyData(googleApps);
             // GroupData(googleApps);
+            
+            // generic types
+            // generic list
+            List<int> numbers = [1, 2, 3, 4, 5];
+            
+            var restaurants = new List<Restaurant>();
+            var results = new PaginatedResult<Restaurant>();
+            results.Results = restaurants;
+            
+            var filmTitlesRepository = new Repository<User>();
+            filmTitlesRepository.Add(new User(){ Id = 1 });
+            filmTitlesRepository.Add(new User(){ Id = 2 });
+            var firstUser = filmTitlesRepository.GetByIndex(0);
+            Console.WriteLine("First user ID from repository: " + firstUser?.Id);
+            
+            var userRepository = new Repository<string, Person>();
+            userRepository.Add("user1", new Person("Alice", "Johnson"));
+            userRepository.Add("user2", new Person("Bob", "Smith"));
+            
+            int[] arrayOfInts = [1, 2, 3];
+            Utils.Swap(ref  arrayOfInts[0], ref arrayOfInts[1]);
+            Console.WriteLine("After swap: " + string.Join(", ", arrayOfInts));
+            
+            // delegate
+            Display displayMethod = Console.WriteLine;
+            DisplayNumbers(numbers, displayMethod);
+        }
+
+        public static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {
+            foreach (var number in numbers) {
+                displayMethod(number.ToString());
+            }
         }
 
         private static IEnumerable<int> GetYieldedData() {
