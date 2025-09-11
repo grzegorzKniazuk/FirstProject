@@ -3,19 +3,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CsvHelper;
 using FirstProject.Enums;
+using Flurl;
 using Newtonsoft.Json;
 
 namespace FirstProject {
     #region ProgramClassRegion
 
     public delegate void Display(string value);
-    
+
     class Program {
         /// <summary>
         ///    The main entry point for the application.
         /// </summary>
         /// <param name="args">args description</param>
-        static void Main(string[] args) {
+        static async Task Main(string[] args) {
             Console.WriteLine("Type in your name:");
             var name = Console.ReadLine();
             Console.WriteLine("Hello, " + name + "! Welcome to the First Project.");
@@ -376,12 +377,12 @@ namespace FirstProject {
 
             var serializedPlayer = JsonConvert.SerializeObject(player);
             File.WriteAllText(@"C:\Projekty - dotnet\FirstProject\player.json", serializedPlayer);
-            
+
             // json deserialization
             var jsonFromFile = File.ReadAllText(@"C:\Projekty - dotnet\FirstProject\player.json");
             var deserializedPlayer = JsonConvert.DeserializeObject<Player>(jsonFromFile);
             Console.WriteLine("Deserialized player name: " + deserializedPlayer?.Name);
-            
+
             // using statement
             // automatically calls Dispose() method on the object
             // typically used for file and network operations
@@ -389,7 +390,7 @@ namespace FirstProject {
             var content = reader.ReadToEnd();
             Console.WriteLine("Content read using StreamReader:");
             Console.WriteLine(content);
-            
+
             // linq
             string csvPath = @"C:\Projekty - dotnet\FirstProject\googleplaystore.csv";
             var googleApps = LoadGoogleAps(csvPath);
@@ -401,29 +402,29 @@ namespace FirstProject {
             // DataSetOperations(googleApps);
             // VerifyData(googleApps);
             // GroupData(googleApps);
-            
+
             // generic types
             // generic list
             List<int> numbers = [1, 2, 3, 4, 5];
-            
+
             var restaurants = new List<Restaurant>();
             var results = new PaginatedResult<Restaurant>();
             results.Results = restaurants;
-            
+
             var filmTitlesRepository = new Repository<User>();
-            filmTitlesRepository.Add(new User(){ Id = 1 });
-            filmTitlesRepository.Add(new User(){ Id = 2 });
+            filmTitlesRepository.Add(new User() { Id = 1 });
+            filmTitlesRepository.Add(new User() { Id = 2 });
             var firstUser = filmTitlesRepository.GetByIndex(0);
             Console.WriteLine("First user ID from repository: " + firstUser?.Id);
-            
+
             var userRepository = new Repository<string, Person>();
             userRepository.Add("user1", new Person("Alice", "Johnson"));
             userRepository.Add("user2", new Person("Bob", "Smith"));
-            
+
             int[] arrayOfInts = [1, 2, 3];
-            Utils.Swap(ref  arrayOfInts[0], ref arrayOfInts[1]);
+            Utils.Swap(ref arrayOfInts[0], ref arrayOfInts[1]);
             Console.WriteLine("After swap: " + string.Join(", ", arrayOfInts));
-            
+
             // delegate
             Display displayMethod = Console.WriteLine;
             DisplayNumbers(numbers, displayMethod);
@@ -431,10 +432,88 @@ namespace FirstProject {
             // predicate delegate
             var count = Count(numbers, (v) => v > 15);
             Console.WriteLine("Count of numbers greater than 15: " + count);
-            
+
             var strings = new string[] { "apple", "banana", "cherry", "date" };
             var countOfStringsWithA = Count(strings, s => s.Contains('a'));
             Console.WriteLine("Count of strings containing 'a': " + countOfStringsWithA);
+
+            // http
+            using var httpClient = new HttpClient();
+            
+            //get
+            var response = await httpClient.GetAsync("https://jsonplaceholder.typicode.com/posts");
+
+            if (response.IsSuccessStatusCode) {
+                var json = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("HTTP GET Response:");
+                Console.WriteLine(json);
+
+                var posts = JsonConvert.DeserializeObject<List<Post>>(json);
+
+                if (posts != null) {
+                    foreach (var post in posts) {
+                        Console.WriteLine(post.Title);
+                        Console.WriteLine(post.Body);
+                    }
+                }
+            }
+            
+            // post
+            var postJsonContent = JsonConvert.SerializeObject(new Post { UserId = "1", Title = "foo", Body = "bar" });
+            var postContent = new StringContent(postJsonContent, Encoding.UTF8, "application/json");
+            var postResponse = await httpClient.PostAsync("https://jsonplaceholder.typicode.com/posts", postContent);
+            
+            if (postResponse.IsSuccessStatusCode) {
+                var json = await postResponse.Content.ReadAsStringAsync();
+                Console.WriteLine("HTTP POST Response:");
+                Console.WriteLine(json);
+            }
+            
+            // request message get
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://jsonplaceholder.typicode.com/posts");
+            request.Headers.Add("Custom-Header", "HeaderValue");
+            var customResponse = await httpClient.SendAsync(request);
+            
+            if (customResponse.IsSuccessStatusCode) {
+                var json = await customResponse.Content.ReadAsStringAsync();
+                Console.WriteLine("HTTP Custom Request Response:");
+                Console.WriteLine(json);
+            }
+            
+            // request message post
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "https://jsonplaceholder.typicode.com/posts");
+            postRequest.Headers.Add("Custom-Header", "HeaderValue");
+            postRequest.Content = new StringContent(postJsonContent, Encoding.UTF8, "application/json");
+            var customPostResponse = await httpClient.SendAsync(postRequest);
+            
+            if (customPostResponse.IsSuccessStatusCode) {
+                var json = await customPostResponse.Content.ReadAsStringAsync();
+                Console.WriteLine("HTTP Custom POST Request Response:");
+                Console.WriteLine(json);
+            }
+            
+            // get params
+            var uriBuilder = new UriBuilder("https://jsonplaceholder.typicode.com/posts");
+            var query = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
+            query["userId"] = "1";
+            uriBuilder.Query = query.ToString();
+            var finalUrl = uriBuilder.ToString();
+            
+            var paramResponse = await httpClient.GetAsync(finalUrl);
+            
+            if (paramResponse.IsSuccessStatusCode) {
+                var json = await paramResponse.Content.ReadAsStringAsync();
+                Console.WriteLine("HTTP GET with Params Response:");
+                Console.WriteLine(json);
+            }
+            
+            // flurl
+            // var flurlResponse = "https://jsonplaceholder.typicode.com/posts".SetQueryParam("userId", "1").GetAsync().ReceiveJson<List<Post>>();
+            // Console.WriteLine("Flurl GET Response:");
+            // foreach (var post in await flurlResponse) {
+            //     Console.WriteLine(post.Title);
+            //     Console.WriteLine(post.Body);
+            // }
         }
 
         public static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {
@@ -442,10 +521,10 @@ namespace FirstProject {
                 displayMethod(number.ToString());
             }
         }
-        
+
         // custom generic predicate delegate
         public delegate bool GenericPredicate<T>(T item);
-        
+
         // use Predicate<T> from System namespace
         public static int Count<T>(IEnumerable<T> items, Predicate<T> predicate) {
             int count = 0;
@@ -455,7 +534,7 @@ namespace FirstProject {
                     count++;
                 }
             }
-            
+
             return count;
         }
 
@@ -496,7 +575,7 @@ namespace FirstProject {
         private static void ScanAndAppend() {
             Directory.GetFiles(@"C:\Projekty - dotnet\FirstProject", "*.txt").ToList().ForEach(filename => { File.AppendAllText(@"C:\Projekty - dotnet\FirstProject\all.txt", "All rights reserved."); });
         }
-        
+
         private static void GetData(IEnumerable<GoogleApp> googleApps) {
             var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
             // first - zwraca pierwszy element lub domyślną wartość, jeśli kolekcja jest pusta
@@ -527,13 +606,13 @@ namespace FirstProject {
 
             // SelectMany - spłaszcza kolekcję kolekcji do jednej kolekcji
             var genres = highRatedBeautyApps.SelectMany(app => app.Genres);
-            
+
             Console.WriteLine(string.Join(", ", highRatedBeautyAppsNames));
         }
-        
+
         private static void DivideData(IEnumerable<GoogleApp> googleApps) {
             var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
-            
+
             var first5HighRatedBeautyApps = highRatedBeautyApps.Take(5);
             var skip5HighRatedBeautyApps = highRatedBeautyApps.Skip(5);
             // TakeWhile - pobiera elementy z kolekcji dopóki warunek jest spełniony
@@ -549,16 +628,16 @@ namespace FirstProject {
             var orderedByName = highRatedBeautyApps.OrderBy(app => app.Name);
             var orderedByReviewsDesc = highRatedBeautyApps.OrderByDescending(app => app.Reviews);
             var orderedByRatingThenByReviews = highRatedBeautyApps.OrderByDescending(app => app.Rating).ThenByDescending(app => app.Reviews);
-            
+
             Display(orderedByName);
             Display(orderedByReviewsDesc);
             Display(orderedByRatingThenByReviews);
         }
-        
+
         private static void DataSetOperations(IEnumerable<GoogleApp> googleApps) {
             var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
             var highRatedGamesApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.GAME);
-            
+
             // Distinct - usuwa duplikaty
             var distinctCategories = googleApps.Select(app => app.Category).Distinct();
             // Union - łączy dwie kolekcje i usuwa duplikaty
@@ -569,13 +648,14 @@ namespace FirstProject {
             var except = highRatedBeautyApps.Except(highRatedGamesApps);
 
             foreach (var distinctCategory in distinctCategories) {
-               Console.WriteLine("Category: " + distinctCategory);
+                Console.WriteLine("Category: " + distinctCategory);
             }
+
             Display(union);
             Display(intersect);
             Display(except);
         }
-        
+
         private static void VerifyData(IEnumerable<GoogleApp> googleApps) {
             var highRatedBeautyApps = googleApps.Where(app => app.Rating >= 4.6).Where(app => app.Category == Category.BEAUTY);
             // All - sprawdza, czy wszystkie elementy spełniają warunek
@@ -595,55 +675,55 @@ namespace FirstProject {
             var groupedByCategory = googleApps.GroupBy(app => app.Category);
             // Grupowanie według wielu kluczy
             var groupedByCategoryAndType = googleApps.GroupBy(app => new { app.Category, app.Type });
-            
+
             // Pobieranie konkretnej grupy
             var artAndDesignApps = groupedByCategory.First(group => group.Key == Category.ART_AND_DESIGN).ToList();
-            
+
             foreach (var group in groupedByCategory) {
                 Console.WriteLine("Category: " + group.Key);
-                
+
                 // czy wszystkie aplikacje w danej kategorii mają ocenę powyżej 4.0
                 var allHighRated = group.All(app => app.Rating > 4.0);
                 Console.WriteLine("\tAll high rated: " + allHighRated);
-                
+
                 // srednia liczba recenzji w danej kategorii
                 var averageReviews = group.Average(app => app.Reviews);
                 Console.WriteLine("\tAverage reviews: " + averageReviews);
-                
+
                 // liczba aplikacji w danej kategorii
                 var count = group.Count();
                 Console.WriteLine("\tCount: " + count);
-                
+
                 // maksymalna liczba recenzji w danej kategorii
                 var maxReviews = group.Max(app => app.Reviews);
                 Console.WriteLine("\tMax reviews: " + maxReviews);
-                
+
                 // minimalna liczba recenzji w danej kategorii
                 var minReviews = group.Min(app => app.Reviews);
                 Console.WriteLine("\tMin reviews: " + minReviews);
-                
+
                 // suma recenzji w danej kategorii
                 var sumReviews = group.Sum(app => app.Reviews);
                 Console.WriteLine("\tSum reviews: " + sumReviews);
-                
+
                 // wyświetlanie aplikacji w danej kategorii
                 foreach (var app in group) {
                     Console.WriteLine("\t" + app);
                 }
             }
         }
-        
-        static void Display(IEnumerable<GoogleApp> googleApps) {
+
+        private static void Display(IEnumerable<GoogleApp> googleApps) {
             foreach (var googleApp in googleApps) {
                 Console.WriteLine(googleApp);
             }
         }
 
-        static void Display(GoogleApp googleApp) {
+        private static void Display(GoogleApp googleApp) {
             Console.WriteLine(googleApp);
         }
 
-        static List<GoogleApp> LoadGoogleAps(string csvPath) {
+        private static List<GoogleApp> LoadGoogleAps(string csvPath) {
             using var reader = new StreamReader(csvPath);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
