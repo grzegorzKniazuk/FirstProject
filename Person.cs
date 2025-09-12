@@ -4,8 +4,14 @@ public class Person {
 
     public static int Count = 0;
     
+    // reflection attribute
+    [DisplayProperty("First Name")]
     public readonly string FirstName;
+    
+    // reflection attribute
+    [DisplayProperty("Last Name")]
     public readonly string LastName;
+    
     private DateTime _dateOfBirth;
     
     /*

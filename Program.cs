@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using CsvHelper;
 using FirstProject.Enums;
-using Flurl;
 using Newtonsoft.Json;
 
 namespace FirstProject {
@@ -439,7 +439,7 @@ namespace FirstProject {
 
             // http
             using var httpClient = new HttpClient();
-            
+
             //get
             var response = await httpClient.GetAsync("https://jsonplaceholder.typicode.com/posts");
 
@@ -457,56 +457,56 @@ namespace FirstProject {
                     }
                 }
             }
-            
+
             // post
             var postJsonContent = JsonConvert.SerializeObject(new Post { UserId = "1", Title = "foo", Body = "bar" });
             var postContent = new StringContent(postJsonContent, Encoding.UTF8, "application/json");
             var postResponse = await httpClient.PostAsync("https://jsonplaceholder.typicode.com/posts", postContent);
-            
+
             if (postResponse.IsSuccessStatusCode) {
                 var json = await postResponse.Content.ReadAsStringAsync();
                 Console.WriteLine("HTTP POST Response:");
                 Console.WriteLine(json);
             }
-            
+
             // request message get
             var request = new HttpRequestMessage(HttpMethod.Get, "https://jsonplaceholder.typicode.com/posts");
             request.Headers.Add("Custom-Header", "HeaderValue");
             var customResponse = await httpClient.SendAsync(request);
-            
+
             if (customResponse.IsSuccessStatusCode) {
                 var json = await customResponse.Content.ReadAsStringAsync();
                 Console.WriteLine("HTTP Custom Request Response:");
                 Console.WriteLine(json);
             }
-            
+
             // request message post
             var postRequest = new HttpRequestMessage(HttpMethod.Post, "https://jsonplaceholder.typicode.com/posts");
             postRequest.Headers.Add("Custom-Header", "HeaderValue");
             postRequest.Content = new StringContent(postJsonContent, Encoding.UTF8, "application/json");
             var customPostResponse = await httpClient.SendAsync(postRequest);
-            
+
             if (customPostResponse.IsSuccessStatusCode) {
                 var json = await customPostResponse.Content.ReadAsStringAsync();
                 Console.WriteLine("HTTP Custom POST Request Response:");
                 Console.WriteLine(json);
             }
-            
+
             // get params
             var uriBuilder = new UriBuilder("https://jsonplaceholder.typicode.com/posts");
             var query = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
             query["userId"] = "1";
             uriBuilder.Query = query.ToString();
             var finalUrl = uriBuilder.ToString();
-            
+
             var paramResponse = await httpClient.GetAsync(finalUrl);
-            
+
             if (paramResponse.IsSuccessStatusCode) {
                 var json = await paramResponse.Content.ReadAsStringAsync();
                 Console.WriteLine("HTTP GET with Params Response:");
                 Console.WriteLine(json);
             }
-            
+
             // flurl
             // var flurlResponse = "https://jsonplaceholder.typicode.com/posts".SetQueryParam("userId", "1").GetAsync().ReceiveJson<List<Post>>();
             // Console.WriteLine("Flurl GET Response:");
@@ -514,9 +514,32 @@ namespace FirstProject {
             //     Console.WriteLine(post.Title);
             //     Console.WriteLine(post.Body);
             // }
+
+            // reflection
+            var personType = typeof(Person);
+            Console.WriteLine("Properties of Person class:");
+            foreach (var prop in personType.GetProperties()) {
+                Console.WriteLine(prop.Name + " - " + prop.PropertyType);
+            }
+
+            // write property value using reflection
+            Console.WriteLine("Insert person property to update:");
+            var propertyName = Console.ReadLine();
+            var propertyInfo = personType.GetProperty(propertyName ?? string.Empty);
+            
+            if (propertyInfo != null) {
+                Console.WriteLine("Insert new value:");
+                var propertyValue = Console.ReadLine();
+                propertyInfo.SetValue(bill, propertyValue);
+                Console.WriteLine("Updated person:");
+                bill.SayHello();
+            }
+            else {
+                Console.WriteLine("Property not found.");
+            }
         }
 
-        public static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {
+        private static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {
             foreach (var number in numbers) {
                 displayMethod(number.ToString());
             }
@@ -716,6 +739,28 @@ namespace FirstProject {
         private static void Display(IEnumerable<GoogleApp> googleApps) {
             foreach (var googleApp in googleApps) {
                 Console.WriteLine(googleApp);
+            }
+        }
+
+        // reflection
+        private static void DisplayWithReflection(object obj) {
+            var objectType = obj.GetType();
+
+            Console.WriteLine("Type: " + objectType.Name);
+            foreach (var prop in objectType.GetProperties()) {
+                var propName = prop.Name;
+                var propValue = prop.GetValue(obj);
+                var propValueType = propValue.GetType();
+
+                if (propValueType.IsPrimitive || propValueType == typeof(string)) {
+                    var displayPropertyAttribute = prop.GetCustomAttribute<DisplayPropertyAttribute>();
+
+                    if (displayPropertyAttribute != null) {
+                        propName = displayPropertyAttribute.DisplayName;
+                    }
+
+                    Console.WriteLine($"{propName}: {propValue}");
+                }
             }
         }
 
