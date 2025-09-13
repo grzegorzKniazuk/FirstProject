@@ -537,6 +537,20 @@ namespace FirstProject {
             else {
                 Console.WriteLine("Property not found.");
             }
+            
+            // records - value equality
+            var currency1 = new Currency("USD", 10);
+            var currency2 = new Currency("USD", 10);
+            
+            Console.WriteLine("currency1 == currency2: " + (currency1 == currency2)); // True, value equality
+            Console.WriteLine("currency1.Equals(currency2): " + currency1.Equals(currency2)); // True, value equality
+            
+            // records with clone method
+            var currency3 = currency1 with { Value = 20 }; // Clone with modification
+            
+            // deconstruct
+            // var (code, value) = currency3;
+            // Console.WriteLine($"Currency3 - Code: {code}, Value: {value}");
         }
 
         private static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {
