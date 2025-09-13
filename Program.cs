@@ -526,7 +526,7 @@ namespace FirstProject {
             Console.WriteLine("Insert person property to update:");
             var propertyName = Console.ReadLine();
             var propertyInfo = personType.GetProperty(propertyName ?? string.Empty);
-            
+
             if (propertyInfo != null) {
                 Console.WriteLine("Insert new value:");
                 var propertyValue = Console.ReadLine();
@@ -537,20 +537,30 @@ namespace FirstProject {
             else {
                 Console.WriteLine("Property not found.");
             }
-            
+
             // records - value equality
             var currency1 = new Currency("USD", 10);
             var currency2 = new Currency("USD", 10);
-            
+
             Console.WriteLine("currency1 == currency2: " + (currency1 == currency2)); // True, value equality
             Console.WriteLine("currency1.Equals(currency2): " + currency1.Equals(currency2)); // True, value equality
-            
+
             // records with clone method
             var currency3 = currency1 with { Value = 20 }; // Clone with modification
-            
+
             // deconstruct
             // var (code, value) = currency3;
             // Console.WriteLine($"Currency3 - Code: {code}, Value: {value}");
+
+            // interpolated constants
+            const string appName = "FirstProject";
+            const string version = "1.0.0";
+            const string fullAppInfo = $"{appName} - Version {version}";
+            Console.WriteLine(fullAppInfo);
+
+            // struct clone
+            var money = new Money() { Value = 100, Currency = "USD" };
+            var clonedMoney = money with { Value = 200 }; // Clone with modification
         }
 
         private static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {
