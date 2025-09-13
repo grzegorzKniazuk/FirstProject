@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -561,6 +562,23 @@ namespace FirstProject {
             // struct clone
             var money = new Money() { Value = 100, Currency = "USD" };
             var clonedMoney = money with { Value = 200 }; // Clone with modification
+            
+            // utf-8
+            string utf8String = "Hello, UTF-8 World! こんにちは";
+            byte[] utf8Bytes = Encoding.UTF8.GetBytes(utf8String);
+            string decodedString = Encoding.UTF8.GetString(utf8Bytes);
+            Console.WriteLine("Original UTF-8 String: " + utf8String);
+            Console.WriteLine("Decoded UTF-8 String: " + decodedString);
+            
+            // list pattern matching
+            var sampleNumbers = new List<int> { 1, 2, 3, 4, 5 };
+            if (sampleNumbers is [1, > 1 and < 3, .. var rest]) {
+                Console.WriteLine("List starts with 1, 2. Rest of the list: " + string.Join(", ", rest));
+            }
+        }
+
+        private static int AddAll<T>(T[] values) where T : INumber<T> {
+            return values.Sum(value => int.Parse(value.ToString() ?? string.Empty));
         }
 
         private static void DisplayNumbers(IEnumerable<int> numbers, Display displayMethod) {

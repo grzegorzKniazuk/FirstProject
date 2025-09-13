@@ -9,7 +9,9 @@ public class Rectangle: Shape, IShape {
     public Rectangle(double sideLength) {
         SideLength = sideLength;
     }
-    
+
+    public static string? Color { get; set; } = "Green";
+
     public double CalculateArea() {
         return SideLength * SideLength;
     }

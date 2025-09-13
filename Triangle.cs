@@ -10,6 +10,8 @@ public class Triangle: Shape, IShape {
         SideLength = sideLength;
     }
 
+    public static string? Color { get; set; } = "Blue";
+
     public double CalculateArea() {
         return (Math.Sqrt(3) / 4) * SideLength * SideLength;
     }

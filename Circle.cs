@@ -10,6 +10,8 @@ public class Circle : Shape, IShape {
         Radius = radius;
     }
 
+    public static string? Color { get; set; } = "Red";
+
     public double CalculateArea() {
         return Math.PI * Radius * Radius;
     }

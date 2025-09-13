@@ -97,4 +97,15 @@ public class Person {
     public override int GetHashCode() {
         return HashCode.Combine(FirstName, LastName);
     }
+
+    public int CalculateSalary() {
+        return Calculator.Add(1000, 2000);
+    }
+}
+
+file abstract class Calculator {
+    public static int Add(int a, int b) => a + b;
+    public static int Subtract(int a, int b) => a - b;
+    public static int Multiply(int a, int b) => a * b;
+    public static double Divide(int a, int b) => (double)a / b;
 }
