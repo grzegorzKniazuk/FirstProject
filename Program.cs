@@ -7,6 +7,9 @@ using CsvHelper;
 using FirstProject.Enums;
 using Newtonsoft.Json;
 
+// aliases
+using Point = (int x, int y);
+
 namespace FirstProject {
     #region ProgramClassRegion
 
